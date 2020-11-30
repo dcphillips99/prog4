@@ -14,23 +14,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <getopt.h>
+#include "hashTable.h"
 
-struct entry{
-
-    int pid;
-    int vpn;
-
-};
-
-struct Hash {
-
-   struct PageTable **pageTable; // Use 0
-
-   struct Page **pageFrameTable; // Use 1
-
-   int whichOne; // Tells us what hashTable we are using
-
-}
 
 unsigned int hash(struct Process entry, int tableSize) {
 	
