@@ -9,4 +9,21 @@
 //      CS Login: hector, dylanp
 //
 ////////////////////////////////////////////////////////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <getopt.h>
+
+
+struct PageTable {
+
+    struct Page pages**
+
+    int key; // PID 
+
+    struct PageTable next; // used for "Chained" Buckets in Hashtable 
+
+
+}
 
