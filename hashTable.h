@@ -12,7 +12,7 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
-struct entry{
+struct Process{
 
     int pid;
     int vpn;
@@ -31,13 +31,13 @@ struct Hash {
 
 unsigned int hash(struct Process entry, int tableSize);
 
-void insert(struct entry, struct Hash table, int whichOne, K data); 
+void insert(struct Process entry, struct Hash table, int whichOne, struct PageTable tablet, struct Page page); 
 
-struct PageTable lookupPageTable(struct entry, struct Hash table);
+struct PageTable lookupPageTable(struct Process entry, struct Hash table);
 
-struct Page lookUpPageFrame(struct entry, struct Hash table);
+struct Page lookUpPageFrame(struct Process entry, struct Hash table);
 
-void delete(struct entry, struct Hash table);
+void delete(struct Process entry, struct Hash table);
 
 struct Hash createHashTable(int tableSize, int whichOne); 
 

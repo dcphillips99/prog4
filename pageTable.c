@@ -18,7 +18,7 @@
 
 struct PageTable {
 
-    struct Page pages**
+    struct Hash pageFrames;
 
     int key; // PID 
 

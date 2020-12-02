@@ -9,4 +9,16 @@
 //      CS Login: hector, dylanp
 //
 ////////////////////////////////////////////////////////////////////////////////
+#include <unistd.h>
+#include <stdlib.h>
 
+
+struct Page {
+
+    int ppn;	
+
+    int bit;
+
+    int pageSize;
+
+}
