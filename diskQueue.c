@@ -10,17 +10,24 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+struct PID {
+	int pid;
+	int vpn;
+};
+
 struct diskQueue {
 	
-	struct queueNode head;
-	struct queueNode tail;
+	struct queueNode  * head;
+	struct queueNode  * tail;
 
 	int count;
+	int init;//checks if queue is initalized
 
 };
 
 struct queueNode {
 	
+	int init; //checks if a node is initalized
 	int pid;
 	int vpn;
 
@@ -35,10 +42,11 @@ struct diskQueue queue;
  * param: current queue node to be the head
  */
 void createQueue(struct queueNode current) {
-	queue.head = current;
-	queue.tail = current;
+	queue.head = &current;
+	queue.tail = &current;
 
 	queue.count = 1;
+	queue.init = 1;
 }
 /*
  * adds a node to the queue by creating a temp pointer node 
@@ -51,12 +59,12 @@ void createQueue(struct queueNode current) {
 void addNode(struct queueNode current) {
 	struct queueNode * tempNode = queue.head;
 
-	while (tempNode.next != NULL) {
-		tempNode = tempNode.next;
+	while (tempNode->next->init == 1) {
+		tempNode = tempNode->next;
 	}
 
-	tempNode.next = current;
-	queue.tail = tempNode.next;
+	tempNode->next = &current;
+	queue.tail = tempNode->next;
 }
 
 /*
@@ -76,7 +84,7 @@ int createNode(struct PID param) {
 	tempNode.pid = param.pid;
 	tempNode.vpn = param.vpn;
 
-	if (queue == NULL) {
+	if (queue.init != 1) {
 		createQueue(tempNode);
 		return 0;
 	}
