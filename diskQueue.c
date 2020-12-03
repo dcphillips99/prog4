@@ -10,43 +10,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct PID {
-	int pid;
-	int vpn;
-};
+#include "diskQueue.h"
+#include "hashTable.h"
 
-struct diskQueue {
-	
-	struct queueNode  * head;
-	struct queueNode  * tail;
-
-	int count;
-	int init;//checks if queue is initalized
-
-};
-
-struct queueNode {
-	
-	int init; //checks if a node is initalized
-	int pid;
-	int vpn;
-
-	struct queueNode * next;
-};
-
-struct diskQueue queue;
 
 /*
  * creates the queue.
  *
  * param: current queue node to be the head
  */
-void createQueue(struct queueNode current) {
-	queue.head = &current;
-	queue.tail = &current;
+struct diskQueue createQueue(struct queueNode * current, struct diskQueue * queue) {
+	queue->head = current;
+	queue->tail = current;
 
-	queue.count = 1;
-	queue.init = 1;
+	queue->count = 1;
+	queue->init = 1;
 }
 /*
  * adds a node to the queue by creating a temp pointer node 
@@ -56,15 +34,19 @@ void createQueue(struct queueNode current) {
  * param: current node to be added
  *
  */
-void addNode(struct queueNode current) {
-	struct queueNode * tempNode = queue.head;
+void enqueue(struct queueNode * current, struct diskQueue * queue) {
+	
+	queue->tail->next = current;
+	queue->tail = current;
+	queue->count = queue->count++;
+}
 
-	while (tempNode->next->init == 1) {
-		tempNode = tempNode->next;
-	}
+struct queueNode dequeue(struct diskQueue * queue) {
+	
+	struct queueNode temp = queue->head;
+	queue->head = queue->head->next;
 
-	tempNode->next = &current;
-	queue.tail = tempNode->next;
+	return temp;
 }
 
 /*
@@ -77,19 +59,19 @@ void addNode(struct queueNode current) {
  * end of the queue.
  *
  */
-int createNode(struct PID param) {
+int createNode(struct entry param, struct diskQueue * queue) {
 	
 	struct queueNode tempNode;
 
 	tempNode.pid = param.pid;
 	tempNode.vpn = param.vpn;
 
-	if (queue.init != 1) {
+	if (queue->init != 1) {
 		createQueue(tempNode);
 		return 0;
 	}
 	else {
-		addNode(tempNode);
+		enqueue(tempNode);
 		return 0;
 	}
 }

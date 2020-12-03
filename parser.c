@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "hashTable.h"
-
+#include "diskQueue.h"
 
 const int INIT_VALUE = 0;
 /*
@@ -140,7 +140,7 @@ void count_parse(char * filename) {
  * param: filename - the name of the trace file 
  *
  */
-void parser(char * filename) {
+struct line parser(char * filename) {
 	
 	
 	FILE * pidGet;
@@ -237,8 +237,63 @@ void parser(char * filename) {
 	curr->byte = byte;
 	curr->numVPN = vpnCount;
 	
-	//creating the hash Tables
-	struct Hash * pageTable = createHashTable(count.uniquePIDs,0);
+	fclose(pidGet);
+	return count.firstPID;
 	
 
 }
+
+void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, struct line * pidStruct) {
+	
+	FILE * fp;
+	fp = fopen(filename);
+
+	if (fp == NULL) {
+
+		perror("Error opening file");
+		exit(0);
+	}
+	
+	char * lastLine;
+	char * pid;
+	char parse;
+	int byte = 0;
+	struct line tempLine = &pidStruct;
+	while ((parse = fgetc(fp)) != EOF) {
+
+		if (parse == ' ') {
+
+			char * vpn;
+			strcat(vpn, parse);
+
+			while ((parse = fgetc(fp)) != EOF) {
+
+				strcat(vpn, parse);
+				++byte;
+			}
+			
+			if (pidStruct->pid != pid) {
+
+			}
+
+			else {
+				struct entry temp;
+				temp->vpn = atoi(vpn);
+				temp->pid = atoi(pid);
+
+				struct page tempPage = lookUpPageFrame(temp, hash);
+			       	
+				if (tempPage.bit != 1) {
+					createNode(temp, diskQueue);
+					//need to block because page
+					//fault
+					tempLine = tempLine->next;
+					
+				}
+			}
+		}
+
+	}
+
+}
+					
