@@ -6,6 +6,7 @@
 #include "hashTable.h"
 #include "diskQueue.h"
 
+const int BUFFER = 256;
 const int INIT_VALUE = 0;
 /*
  * structure created to keep track of the last iteration
@@ -287,9 +288,24 @@ void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, 
 					createNode(temp, diskQueue);
 					//need to block because page
 					//fault
+					tempLine.byte = byte; //save number of bytes
+					//weve already parsed
+
 					tempLine = tempLine->next;
 					
+					//get each subsequent line until we've found the 
+					//beginning line for next process
+					while (strcmp(fgets(lastLine, BUFFER, fp), tempLine->beginning) != 0) {
+						
+						memset(lastLine, '\0', BUFFER);
+						continue;
+					}
+										
+				} else {
+					//if the tempPage bit is 1, then it is in mem and 
+					//continue as normal
 				}
+				
 			}
 		}
 
