@@ -19,11 +19,24 @@ struct Process{
 
 };
 
+struct Entry { // maps the VPN to the PPN
+
+   int vpn; 
+   int ppn;
+
+   struct Entry *next; // Bucket for hashtable
+   
+   int isNext; // boolean value for next var
+
+}
+
 struct Hash {
 
    struct PageTable **pageTable; // Use 0
 
    struct Page **pageFrameTable; // Use 1
+
+   struct Entry **invertedPageTable; // Use 2
 
    int whichOne; // Tells us what hashTable we are using
 
@@ -31,7 +44,7 @@ struct Hash {
 
 unsigned int hash(struct Process entry, int tableSize);
 
-void insert(struct Process entry, struct Hash table, int whichOne, struct PageTable tablet, struct Page page); 
+void insert(struct Process entry, struct Hash table, int whichOne, struct PageTable tablet, struct Page page, struct Entry link); 
 
 struct PageTable lookupPageTable(struct Process entry, struct Hash table);
 

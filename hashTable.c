@@ -46,7 +46,7 @@ unsigned int hash(struct Process entry, int tableSize) {
  *       struct PageTable tablet, struct Page page
  *
  */
-void insert(struct Process entry, struct Hash table, int whichOne, struct PageTable tablet, struct Page page) {
+void insert(struct Process entry, struct Hash table, int whichOne, struct PageTable tablet, struct Page page, struct Entry link) {
 
    if(whichOne == NULL) {
 
@@ -64,7 +64,18 @@ void insert(struct Process entry, struct Hash table, int whichOne, struct PageTa
 
       }else { // When collisions occur
 
-         table -> pageTable[hashValue] -> next = tablet;
+	 struct PageTable *tempNode = table -> pageTable[hashValue];     
+
+	 while(tempNode -> isNext != 0) {
+
+            tempNode = tempNode -> next;
+
+	 }
+
+	 tempNode -> next = tablet;
+	 tempNode -> isNext = 1;
+
+	 free(tempNode);
 
       }
 
@@ -78,11 +89,49 @@ void insert(struct Process entry, struct Hash table, int whichOne, struct PageTa
 
       }else { // When collisions occur
 
-         table -> pageFrameTable[hashValue] -> next = page;
+	 struct Page *tempNode = table -> pageFrameTable[hashValue];
+
+         while(tempNode -> isNext != 0) {
+
+            tempNode = tempNode -> next;
+
+         }
+
+         tempNode -> next = page;
+         tempNode -> isNext = 1;
+
+
+         free(tempNode);
 
 
       }
 
+   }
+
+   if(whichOne == 2) { // accesses the inverted pagetable
+
+      if(table -> invertedPageTable[hashValue] == NULL) {
+
+         table -> invertedPageTable[hashValue] = link;
+
+      }else { // When collisions occur
+
+         struct Entry *tempNode = table -> invertedPageTable[hashValue];
+
+         while(tempNode -> isNext != 0) {
+
+            tempNode = tempNode -> next;
+
+         }
+
+         tempNode -> next = link;
+         tempNode -> isNext = 1;
+
+
+         free(tempNode);
+
+
+      }
 
    }
 
@@ -95,7 +144,7 @@ void insert(struct Process entry, struct Hash table, int whichOne, struct PageTa
  * Params: struct Process entry, struct Hash table
  *
  */
-struct PageTable lookupPageTable(struct Process entry, struct Hash table) {
+struct PageTable lookupPageTable(struct Process *entry, struct Hash table) {
 
    int hashVal = hash(entry);
  
@@ -107,7 +156,28 @@ struct PageTable lookupPageTable(struct Process entry, struct Hash table) {
 
   struct PageTable foundPageTable = table -> pageTable[hashVal];
 
+  if(foundPageTable.key == entry -> pid) {
+
+     return foundPageTable;
+
+  }else {
+
+     while(foundPageTable -> isNext != 0) {
+
+        foundPageTable = foundPageTable -> next;
+
+	if(foundPageTable.key == entry -> pid) {
+
+           break;
+
+	}
+
+     }
+
+
   return foundPageTable;
+
+  }
 
 
 }
@@ -123,6 +193,9 @@ struct Page lookUpPageFrame(struct Process entry, struct Hash table) {
 
    int hashVal = hash(entry);
 
+
+// FIX THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    if(table -> whichOne != 1) { // Ensures we don't access wrong hashtable
 
       exit(0);
@@ -130,6 +203,12 @@ struct Page lookUpPageFrame(struct Process entry, struct Hash table) {
    }
 
    struct Page foundPage = table -> pageFrameTable[hashVal];
+
+   if() { // Check if foundPage is correct entry to be returned
+
+
+
+   }
    
    return foundPage;
 
@@ -142,7 +221,7 @@ struct Page lookUpPageFrame(struct Process entry, struct Hash table) {
  *
  */
 void delete(struct Process entry, struct Hash table) {
-
+  
    int hashVal = hash(entry);
 
    if(table -> whichOne == 0) { // Specifes which hashtable to access
@@ -157,6 +236,12 @@ void delete(struct Process entry, struct Hash table) {
 
    }
 
+   if(table -> whichOne == 2) {
+
+      table -> invertedPageTable[hashVal] = NULL;
+
+   }
+
 }
 
 /*
@@ -166,6 +251,7 @@ void delete(struct Process entry, struct Hash table) {
  * Specifier:
  * 0 = PageTable type
  * 1 = Page type
+ * 2 = Entry type
  *
  * Params: int tableSize, int whichOne
  *
@@ -178,7 +264,7 @@ struct Hash createHashTable(int tableSize, int whichOne) {
 
       newHashTable -> pageTable[tableSize * 2];
 
-      for(int i; i < tableSize; i++) {
+      for(int i; i < tableSize *2; i++) {
 
          newHashTable -> pageTable[i] = NULL; // Initializing elements to NULL
 
@@ -190,11 +276,11 @@ struct Hash createHashTable(int tableSize, int whichOne) {
 
    }
 
-   if(whichOne == 1) { // Createas Page type hashtable
+   if(whichOne == 1) { // Creates Page type hashtable
 
       newHashTable -> pageFrameTable[tableSize * 2];
 
-      for(int i = 0; i < tableSize; i++) {
+      for(int i = 0; i < tableSize *2; i++) {
 
          newHashTable -> pageFrameTable[i] = NULL; // Intializing elements to NULL
 
@@ -202,6 +288,23 @@ struct Hash createHashTable(int tableSize, int whichOne) {
       
       newHashTable -> whichOne = 1; // Setting specifier value to correspond to Page type
 
+      return newHashTable;
+
+   }
+
+   if(whichOne == 2) { // Creates an inverted page table
+
+      newHashTable -> invertedPageTable[tableSize * 2];
+
+      for(int i = 0; i < tableSize *2; i++) {
+
+         newHashTable -> invertedPageTable[i] = NULL;
+
+      }
+
+      newHashTable -> whichOne = 2;
+
+      
       return newHashTable;
 
    }

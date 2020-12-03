@@ -23,7 +23,8 @@ struct PageTable {
     int key; // PID 
 
     struct PageTable next; // used for "Chained" Buckets in Hashtable 
-
+ 
+    int isNext;
 
 }
 

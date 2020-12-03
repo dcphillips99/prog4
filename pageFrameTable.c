@@ -19,6 +19,8 @@ struct Page {
 
     int bit;
 
-    int pageSize;
+    struct Page *next;
+
+    int isNext;
 
 }
