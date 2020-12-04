@@ -16,119 +16,16 @@ struct line {
 	char * beginning;
 	char * end;
 	long int pid;
-	int byte;
-	int numVPNs;
+	int len; // position of beginning ref
+	int byte; //number of bytes traversed parse 2
 	int init = INIT_VALUE;
 	struct line * nextLine;
 };
 
 struct parse1 {
-	int uniquePIDs;
+
 	struct line * firstPID;
 };
-
-struct parse1 count;
-
-/*
- * returns the number of pages found
- *
- * param: PID - the line struct to be added
- * to the last line
- *
- * traverse through all the linked line structs
- * and adds the line to the end
- *
- */
-int findLine(struct line * PID) {
-	if (count.firstPID->init == 0) {
-		count.firstPID = PID;
-		return 1;
-	}
-
-	else {
-		struct line * unused = count.firstPID;
-		
-		int counter = 0;
-		while (unused->init != 0) {
-			
-			unused->nextLine = unused->nextLine->nextLine;
-			counter++;
-		}
-		
-		unused->nextLine = PID;
-		return counter;
-	}
-	
-	return 0;
-}
-
-void count_parse(char * filename) {
-
-	FILE * fp;
-
-	fp = fopen(filename, "r");
-
-	if (fp == NULL) {
-		perror("Error opening file.");
-		exit(0);
-	}
-
-	int pidCounter = 0;
-	int vpnCounter = 0;
-	char * pid;
-	char * previousPID;
-	char parse;
-	int pidbytes = 0;
-	
-	//while loop iterating through the file
-	while ((parse = fgetc(fp)) != EOF) {
-		
-		//finds the space between pid and vpn
-		if (parse == ' ') {
-			
-			//checks that there is (or isn't) a previous pid to compare
-			//to, as well as if the previous pid is the same as current
-			//pid
-			if (previousPID == NULL || strcmp(pid, previousPID) != 0) {
-				
-				//if it is, copy the current into previous
-				//and clear the current string
-				strcpy(previousPID, pid);
-				memset(pid, '\0', pidBytes);
-			}
-			else {
-				//if there is a previous pid and it is not
-				//the same as the current, update # of pids,
-				//then do the same as above (cpy and clear)
-				pidCounter++;
-				strcpy(previousPID, pid);
-				memset(pid, '\0', pidBytes);
-			}
-			
-			//iterate through the vpn since we've passed the space
-			//iterates until a newline char
-			while ((parse = fgetc(fp)) != EOF || parse != '\n') {
-				
-				continue;
-			}
-		}
-		
-		//if the current char (parse) is not a space,
-		//then we concat to pid string as we are before a space
-		//and therefore recording a pid 
-		else {
-			strcat(pid, parse);
-			pidBytes++;
-		}
-	}
-
-	//init the parse1 struct to have the correct num of unique
-	//pids, as well as enough entries in the array of structs
-	//such that 1 entry per pid (containing first and last
-	//access, number of vpns, etc.)
-	count.uniquePIDs = pidCount;
-	count.firstPID = malloc(sizeof(struct line) * pidCount);
-}
 
 /*
  * parser function that opens a file 
@@ -156,92 +53,65 @@ struct line parser(char * filename) {
 	char * pid;
 	char * previousLine;
 	char parse;
-	int byte = 0; //total number of bytes passed
 	int pidByte = 0; //number of pid bytes passed for 
-	int line = 0; //counts num of lines for each pid
-	//clearing the string at the end 
-	int vpnCount = 0;
-	struct line * curr = count.firstPID;
+
+	struct parse1 count;
+
+	count.firstPID = malloc(sizeof(struct line));
+	struct line * curr = &count.firstPID;
 	
 	while ((parse = fgetc(pidGet)) != EOF) {
 		
 		if (parse == ' ') {
 			
-			char * vpn = parse;
+			char * vpn;
+			strcat(vpn, parse);
 
 			while ((parse = fgetc(pidGet)) != EOF || parse != '\n') {
-
-				strcat(vpn, parse);
-				++byte;
+				
+				strcat(vpn, parse); // pass through the vpn				
 			}
-			++vpnCount;
-			if (curr->init == 0) { //for the first time through
-				//since curr isn't initilized, it will init
-				//it 
-				curr->init = 1;
-				curr->pid = atoi(pid);
-				strcpy(curr->beginning, pid);
-				strcat(curr->beginning, vpn);
-			}
-			else {
-				//if the curr structs pid does not
-				//match the current pid read
-				if (curr->pid != atoi(pid)) {
-					//copy the last line in end,
-					//set the number of bytes and vpns
-					//and create a new line struct
-					//such that it is init, and has current
-					//pid and is added to last line
-					strcpy(curr->end, previousLine);
-					curr->byte = byte;
-					curr->numVPNs = vpnCount - 1;
-					vpnCount = 0;
-					byte = 0;
 
-					struct line * tempLine;
-					tempLine->pid = atoi(pid);
-					strcpy(curr->beginning, pid);
-					strcat(curr->beginning, vpn);
+			if (atoi(pid) != curr->pid) {
 
-					curr->nextLine = tempLine;
-					curr = curr->nextLine;
+				curr = &count.firstPID;
+				
+				int out = 0;
+				while (curr->init == 1 && out == 0) {
 
-					memset(lastLine, '\0', 1); //clear last line so 
-					//we dont mix pids 
+					if (curr->pid == atoi(pid)) {
+						out = 1;
+					}
+					else {
+						curr = curr->next;
+					}
+				}
+				
+				if (out == 0) {
+					struct line * temp;
+					temp->init = 1;
+					temp->pid = atoi(pid);
+					strcpy(temp->beginning, pid);
+					strcat(temp->beginning, vpn);
+					temp->len = ftell(fp);
 				}
 				else {
-
-					if (curr->beginning == NULL) {
-						strcpy(curr->beginning, pid);
-						strcat(curr->beginning, vpn);
-					}
-
-					memset(lastLine, '\0', 1);
+					strcpy(temp->end,pid);
+					strcat(temp->end, vpn);
 				}
 
-				line++;
-				strcpy(lastLine, pid);
-				strcat(lastLine, vpn);
-
-				memset(pid, '\0', pidByte);
+				memset(parse, '\0', pidByte);
 				pidByte = 0;
 			}
 		}
+		
 		else {
 			strcat(pid, parse);
 			++pidByte;
-
-
+		}
 	}
-
-	strcpy(curr->end, lastLine);
-	curr->byte = byte;
-	curr->numVPN = vpnCount;
 	
-	fclose(pidGet);
 	return count.firstPID;
-	
-
 }
 
 void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, struct line * pidStruct) {
@@ -259,7 +129,7 @@ void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, 
 	char * pid;
 	char parse;
 	int byte = 0;
-	struct line tempLine = &pidStruct;
+	struct line * tempLine = &pidStruct;
 	while ((parse = fgetc(fp)) != EOF) {
 
 		if (parse == ' ') {
@@ -267,7 +137,7 @@ void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, 
 			char * vpn;
 			strcat(vpn, parse);
 
-			while ((parse = fgetc(fp)) != EOF) {
+			while ((parse = fgetc(fp)) != EOF || parse == '\n') {
 
 				strcat(vpn, parse);
 				++byte;
@@ -278,11 +148,11 @@ void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, 
 			}
 
 			else {
-				struct entry temp;
+				struct Process temp;
 				temp->vpn = atoi(vpn);
 				temp->pid = atoi(pid);
 
-				struct page tempPage = lookUpPageFrame(temp, hash);
+				struct Page tempPage = lookUpPageFrame(temp, hash);
 			       	
 				if (tempPage.bit != 1) {
 					createNode(temp, diskQueue);
@@ -290,15 +160,35 @@ void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, 
 					//fault
 					tempLine.byte = byte; //save number of bytes
 					//weve already parsed
-
-					tempLine = tempLine->next;
 					
-					//get each subsequent line until we've found the 
-					//beginning line for next process
-					while (strcmp(fgets(lastLine, BUFFER, fp), tempLine->beginning) != 0) {
+					//Either we need to go to the next pid to start
+					//parsing, or dequeue from diskQueue and start parsing 
+					//from there
+					if (tempLine->next->init != 1) {
 						
-						memset(lastLine, '\0', BUFFER);
-						continue;
+						struct queueNode dequeue = dequeue(diskQueue);
+
+						tempLine = &pidStruct;
+
+						while (tempLine->pid != dequeue.pid) {
+							
+							tempLine = tempLine->next;
+						}
+						fseek(fp, tempLine->byte, SEEK_SET); //set pointer
+						//to the last byte processed (should be start of a new line)
+					}
+
+					else {
+						
+						tempLine = tempLine->next;
+					
+						//get each subsequent line until we've found the 
+						//beginning line for next process
+						while (strcmp(fgets(lastLine, BUFFER, fp), tempLine->beginning) != 0) {
+						
+							memset(lastLine, '\0', BUFFER);
+							continue;
+						}
 					}
 										
 				} else {
