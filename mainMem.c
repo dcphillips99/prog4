@@ -24,9 +24,14 @@ struct Memory {
 
    int memSize;
 
-
 }
 
+/*
+ * Calculates the size of main memory
+ *
+ * Params: int pageSize, int memSize
+ *
+ */
 int getMemorySize(int pageSize, int memSize) {
 
    int calcSize = memSize/pageSize;
@@ -35,8 +40,16 @@ int getMemorySize(int pageSize, int memSize) {
 
 }
 
+/*
+ * Adds a page to the simulated main memory
+ *
+ * Params: struct Memory *mainMem, struct Page page
+ *
+ */
 int addEntry(struct Memory *mainMem, struct Page page) {
 
+ 
+ if(mainMem -> index != mainMem -> size) {
    if(mainMem -> mainMemory[mainMem -> index] == NULL) {	
 
       mainMem -> mainMemory[mainMem -> index] = page;
@@ -45,12 +58,19 @@ int addEntry(struct Memory *mainMem, struct Page page) {
 
    }else {
 
-      evict();
-  
+
+
    }
 
 }
 
+/*
+ * Creates the instance of simulated main memory and
+ * intializes it all correctly
+ *
+ * Params: int pageSize, int memSize
+ *
+ */
 struct Memory createMainMemory(int pageSize, int memSize) {
 
    struct Memory mainMem = malloc(sizeof(Memory));

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct CLOCK {
+struct Scheduling_DS {
 
    struct CLOCK_NUM **clock;
 
@@ -20,7 +20,7 @@ struct CLOCK {
 
 };
 
-struct CLOCK_NUM {
+struct DS_Node {
 
    int pid;
 
@@ -30,6 +30,12 @@ struct CLOCK_NUM {
 
 };
 
+/*
+ * Gets the size of the main memory
+ *
+ * Params: int pageSize, int memSize
+ *
+ */
 int getSize(int pageSize, int memSize) {
 
    int newSize = memSize/pageSize;
@@ -38,6 +44,13 @@ int getSize(int pageSize, int memSize) {
 
 }
 
+/*
+ * Creates a clock entry to be scheduled
+ *
+ *
+ * Params: struct Process *entry
+ *
+ */
 struct CLOCK_NUM  makeClockEntry(struct Process *entry) {
 
    struct CLOCK_NUM *newEntry  = malloc(sizeof(CLOCK_NUM));
@@ -52,14 +65,43 @@ struct CLOCK_NUM  makeClockEntry(struct Process *entry) {
 
 }
 
-void evict() {
+/*
+ * Creates the instance of the clock to keep
+ * track of processes pages and schedules them
+ * inside the clock.
+ *
+ * Params: int pageSize, int memSize
+ *
+ */
+struct CLOCK createClock(int pageSize, int memSize) {
 
+   struct CLOCK newClock = malloc(sizeof(CLOCK));
 
+   int size = getSize(pageSize, memSize);
 
+   newClock -> clock[size];
+
+   for(int i = 0; i < size; i++) {
+
+      newClock -> clock[i] = NULL;
+
+   } 
+
+   newClock -> current = NULL;
+
+   return newClock;
 
 }
 
+/*
+ * Schedules a clock entry into a clock
+ *
+ * Params: struct Process *entry
+ *
+ */
 void schedule(struct Process *entry) {
+
+
 
    
 

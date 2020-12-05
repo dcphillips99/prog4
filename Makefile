@@ -1,18 +1,27 @@
 
-537pfsim-fifo:
+537pfsim-fifo: main.o mainMem.o FIFO.o hashTable.o diskQueue.o pageTable.o pageFrameTable.o statistics.o
+	gcc -c main.o mainMem.o FIFO.o hashTable.o diskQueue.o pageTable.o pageFrameTable.o statistics.o
 
+537pfsim-lru: main.o mainMem.o LRU.o hashTable.o diskQueue.o pageTable.o pageFrameTable.o statistics.o
+	gcc -c main.o mainMem.o LRU.o hashTable.o diskQueue.o pageTable.o pageFrameTable.o statistics.o
 
-537pfsim-lru:
-
-
-537pfsim-clock:
-
+537pfsim-clock: main.o mainMem.o CLOCK.o hashTable.o diskQueue.o pageTable.o pageFrameTable.o statistics.o
+	gcc -c main.o mainMem.o CLOCK.o hashTable.o diskQueue.o pageTable.o pageFrameTable.o statistics.o
 
 main.o: main.c
 	gcc -c main.c
 
-schedulingAlgorithm.o: schedulingAlgorithm.c
-	gcc -c schedulingAlgorithm.c
+mainMem.o: mainMem.c mainMem.h
+	gcc -c mainMem.c
+	
+FIFO.o: FIFO.c FIFO.h
+	gcc -c FIFO.c
+
+LRU.o: LRU.c LRU.h
+	gcc -c LRU.c
+
+CLOCK.o: CLOCK.c CLOCK.h
+	gcc - CLOCK.c
 
 hashTable.o: hashTable.c hashTable.h
 	gcc -c hashTable
