@@ -1,4 +1,4 @@
-
+#include "hashTable.h"
 
 #ifndef DISK_QUEUE_H
 #define DISK_QUEUE_H
@@ -20,9 +20,8 @@ struct diskQueue {
 struct queueNode {
 
         int init; //checks if a node is initalized
-        int pid;
-        int vpn;
 
+	struct Process * data;
         struct queueNode * next;
 };
 
