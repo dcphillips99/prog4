@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "hashTable.h"
 #include "diskQueue.h"
-
+#include "pageFrameTable.h"
 const int BUFFER = 256;
 const int INIT_VALUE = 0;
 /*
@@ -21,6 +21,37 @@ struct line {
 	int init = INIT_VALUE;
 	struct line * nextLine;
 };
+
+/*
+ * findLine takes in a pid and line struct and
+ * finds the corresponding line struct for the pid
+ *
+ * used to help in parse2
+ *
+ * param: pointer to current line struct (should be
+ * the first line) and pid to search for
+ *
+ */
+struct line * findLine(struct line * curr, int pid) {
+	
+	int found = 0;
+	while (curr->init != 0 && found != 1) {
+		
+		if (curr->pid == pid) {
+	
+			found = 1;
+	
+		}
+	
+		else {
+			
+			curr = curr->nextLine;
+			
+		}
+	}
+	
+	return curr;
+}
 
 struct parse1 {
 
@@ -114,7 +145,7 @@ struct line parser(char * filename) {
 	return count.firstPID;
 }
 
-void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, struct line * pidStruct) {
+void parser2(char * filename, struct diskQueue * diskQueue, struct Hash * hash, struct line * pidStruct, struct mainMem memory) {
 	
 	FILE * fp;
 	fp = fopen(filename);
@@ -144,59 +175,63 @@ void parser3(char * filename, struct diskQueue * diskQueue, struct Hash * hash, 
 			}
 			
 			if (pidStruct->pid != pid) {
-
-			}
-
-			else {
-				struct Process temp;
-				temp->vpn = atoi(vpn);
-				temp->pid = atoi(pid);
-
-				struct Page tempPage = lookUpPageFrame(temp, hash);
-			       	
-				if (tempPage.bit != 1) {
-					createNode(temp, diskQueue);
-					//need to block because page
-					//fault
-					tempLine.byte = byte; //save number of bytes
-					//weve already parsed
-					
-					//Either we need to go to the next pid to start
-					//parsing, or dequeue from diskQueue and start parsing 
-					//from there
-					if (tempLine->next->init != 1) {
-						
-						struct queueNode dequeue = dequeue(diskQueue);
-
-						tempLine = &pidStruct;
-
-						while (tempLine->pid != dequeue.pid) {
-							
-							tempLine = tempLine->next;
-						}
-						fseek(fp, tempLine->byte, SEEK_SET); //set pointer
-						//to the last byte processed (should be start of a new line)
-					}
-
-					else {
-						
-						tempLine = tempLine->next;
-					
-						//get each subsequent line until we've found the 
-						//beginning line for next process
-						while (strcmp(fgets(lastLine, BUFFER, fp), tempLine->beginning) != 0) {
-						
-							memset(lastLine, '\0', BUFFER);
-							continue;
-						}
-					}
-										
-				} else {
-					//if the tempPage bit is 1, then it is in mem and 
-					//continue as normal
-				}
 				
+				//find the correct pidStruct with the 
+				//correct info
+				curr = findLine(pidStruct, pid);
+
+
 			}
+
+			
+			struct Process temp;
+			temp->vpn = atoi(vpn);
+			temp->pid = atoi(pid);
+
+			struct Page tempPage = lookUpPageFrame(temp, hash);
+		       	
+			if (tempPage.bit != 1) {
+				createNode(temp, diskQueue);
+				//need to block because page
+				//fault
+				tempLine.byte = byte; //save number of bytes
+				//weve already parsed
+					
+				//Either we need to go to the next pid to start
+				//parsing, or dequeue from diskQueue and start parsing 
+				//from there
+				if (tempLine->next->init != 1) {
+						
+					struct queueNode dequeue = dequeue(diskQueue);
+
+					tempLine = findLine(pidStruct, dequeue.pid);
+
+					fseek(fp, tempLine->byte, SEEK_SET); //set pointer
+					//to the last byte processed (should be start of a new line)
+				}
+
+				else {
+						
+					tempLine = tempLine->next;
+					
+					//get each subsequent line until we've found the 
+					//beginning line for next process
+					while (strcmp(fgets(lastLine, BUFFER, fp), tempLine->beginning) != 0) {
+					
+						memset(lastLine, '\0', BUFFER);
+						continue;
+					}
+				}
+									
+			} else {
+				//if the tempPage bit is 1, then it is in mem and 
+				//continue as normal
+				memset(pid, '\0', pidByte);
+
+				//clear the pid string and keep parsing
+			}
+				
+			
 		}
 
 	}

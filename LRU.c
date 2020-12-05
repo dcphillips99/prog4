@@ -1,30 +1,51 @@
 #include "hashTable.h"
 
-const int INIT_VALUE = 0;
 
-struct LRU_List {
 
-	struct LRU_Node * head;
-	struct LRU_Node * tail;
-
-	int size;
-	int maxSize;
-};
-
-struct LRU_Node {
-
-	struct Process * data;
+struct Scheduling_DS * memToDS(struct memory * mainMem) {
 	
-	struct LRU_Node * next;
-	struct LRU_Node * previous;
+	struct Scheduling_DS * temp_DS;
 	
-	int init = INIT_VALUE;
-};
+	struct DS_Node * previous;
+	for (int i = 0; i < mainMem->size; ++) {
+		
+		struct DS_Node * tempNode;
+		tempNode->data = mainMem->mainMemory[i];
+		
+		if (previous->init == 0) {
 
-struct LRU_List createLRU(struct Process * param, int maxSize) {
+			previous = tempNode;
+			
+			temp_DS->head = previous;
+			temp_DS->tail = previous;
+			temp_DS->size = 1;
+		}
+		else {
+			tempNode->previous = previous;
+			previous->next = tempNode;
 
-	struct LRU_Node * temp;
-	temp->data = param;
+			temp_DS->tail = tempNode;
+
+			previous = tempNode;
+
+			temp_DS->size++;
+		}
+	}
+
+	temp_DS->maxSize = mainMem->memSize;
+
+	return temp_DS;
+
+
+
+
+struct Scheduling_DS * createDS(struct Process * param, int maxSize) {
+
+	struct DS_Node * temp;
+
+	struct Page * tempPage;
+	tempPage->ppn = param->vpn;
+	temp->data = tempPage;
 	temp->init = 1;
 
 	struct LRU_List * list = malloc(sizeof(struct LRU_List));
@@ -37,9 +58,9 @@ struct LRU_List createLRU(struct Process * param, int maxSize) {
 	return list;
 }
 
-void addEntry(struct process * param, struct LRU_List * list) {
+void addEntry(struct process * param, struct Memory * mainMem) {
 
-	struct LRU_Node * temp = list->head;
+	struct DS_Node * temp = (memToDS(mainMem))->head;
 	
 	int found = 0;
 	while (temp->init != INIT_VALUE && found != 1) {

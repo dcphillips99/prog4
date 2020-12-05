@@ -12,7 +12,7 @@
 
 #include "diskQueue.h"
 #include "hashTable.h"
-
+#include "LRU.h"
 
 /*
  * creates the queue.
@@ -40,10 +40,15 @@ void enqueue(struct queueNode * current, struct diskQueue * queue) {
 	queue->tail = current;
 	queue->count = queue->count++;
 }
-
-struct queueNode dequeue(struct diskQueue * queue) {
+/*
+ * When diskQueue dequeues it will push the head node
+ * off the top and return it, while also sending it
+ * to be scheduled in the proper scheduling algorithm
+ *
+ */
+struct queueNode * dequeue(struct diskQueue * queue) {
 	
-	struct queueNode temp = queue->head;
+	struct queueNode * temp = queue->head;
 	queue->head = queue->head->next;
 
 	return temp;
@@ -59,12 +64,11 @@ struct queueNode dequeue(struct diskQueue * queue) {
  * end of the queue.
  *
  */
-int createNode(struct entry param, struct diskQueue * queue) {
+int createNode(struct Process * param, struct diskQueue * queue) {
 	
-	struct queueNode tempNode;
+	struct queueNode * tempNode;
 
-	tempNode.pid = param.pid;
-	tempNode.vpn = param.vpn;
+	tempNode->data = param;
 
 	if (queue->init != 1) {
 		createQueue(tempNode);
