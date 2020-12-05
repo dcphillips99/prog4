@@ -12,19 +12,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-
-struct Page {
-
-    int ppn; // Key
-
-    int bit; // bit represents if present in main memory
-
-    struct Page *next; // for use of buckets in hash table
-
-    int isNext; // boolean var for next pointer
-
-}
-
 /*
  * Creates and initializes a new page
  *

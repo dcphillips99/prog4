@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "hashTable.h"
 #include "diskQueue.h"
-
+#include "pageFrameTable.h"
 const int BUFFER = 256;
 const int INIT_VALUE = 0;
 /*
@@ -145,7 +145,7 @@ struct line parser(char * filename) {
 	return count.firstPID;
 }
 
-void parser2(char * filename, struct diskQueue * diskQueue, struct Hash * hash, struct line * pidStruct) {
+void parser2(char * filename, struct diskQueue * diskQueue, struct Hash * hash, struct line * pidStruct, struct mainMem memory) {
 	
 	FILE * fp;
 	fp = fopen(filename);

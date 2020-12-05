@@ -12,7 +12,7 @@
 
 #include "diskQueue.h"
 #include "hashTable.h"
-
+#include "LRU.h"
 
 /*
  * creates the queue.
