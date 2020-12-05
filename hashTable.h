@@ -17,6 +17,8 @@ struct Process{
     int pid;
     int vpn;
 
+    struct Process *next; // links the vpns together for easy removal
+
 };
 
 struct Entry { // maps the VPN to the PPN
@@ -45,6 +47,10 @@ struct Hash {
 unsigned int hash(struct Process entry, int tableSize);
 
 void insert(struct Process entry, struct Hash table, int whichOne, struct PageTable tablet, struct Page page, struct Entry link); 
+
+void insertLink(struct Process *entry, struct Hash table);
+
+int isPage(struct Process *entry, struct Hash table);
 
 struct PageTable lookupPageTable(struct Process entry, struct Hash table);
 

@@ -26,11 +26,15 @@ struct Queue_FIFO {
 
 struct QueueNode {
 
-struct Process data;
+struct Page page;
+
+int PID;
 
 int done;
 
 struct QueueNode *next;
+
+int isNext;
 
 
 }
@@ -117,7 +121,7 @@ void update(struct Queue_FIFO *queue) {
 
 }
 
-void schedule(struct Queue_FIFO *queue, struct Process entry) {
+void schedule(struct Process entry) {
 
    enqueue(queue, createNode(entry));
 

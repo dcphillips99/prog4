@@ -109,7 +109,7 @@ void insert(struct Process entry, struct Hash table, int whichOne, struct PageTa
    }
 
    if(whichOne == 2) { // accesses the inverted pagetable
-
+ 
       if(table -> invertedPageTable[hashValue] == NULL) {
 
          table -> invertedPageTable[hashValue] = link;
@@ -135,6 +135,27 @@ void insert(struct Process entry, struct Hash table, int whichOne, struct PageTa
 
    }
 
+}
+int isPage(struct Process *entry, struct Hashtable table) {
+
+   int hashVal = hash(entry);
+
+   if(table -> whichOne != 0) {
+
+      exit(0);
+
+   }
+   struct PageTable *temp = table -> pageTable[hashval];
+
+   if(temp -> pageTable[hashVal] = NULL) {
+
+      return 0;
+
+   }
+
+
+
+   return 
 }
 
 /*
